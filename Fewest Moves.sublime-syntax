@@ -16,8 +16,6 @@ contexts:
     # The main context is the initial starting point of our syntax.
     # Include other contexts from here (or specify them directly).
     - include: keywords
-    - include: numbers
-    - include: strings
     - include: notations
 
   keywords:

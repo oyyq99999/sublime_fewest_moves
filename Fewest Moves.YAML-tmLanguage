@@ -1,0 +1,22 @@
+# [PackageDev] target_format: plist, ext: tmLanguage
+---
+name: Fewest Moves
+scopeName: source.fm
+fileTypes: [fm, fmc]
+uuid: 56a09a3f-3e4b-4fc4-ae9a-d81df056a9ec
+
+patterns:
+- name: keyword.control.fm
+  match: \b(?i)niss\b
+
+- name: notation.fm
+  match: ([URFDLB]w?[''2]?|[xyz][''2]?)
+- name: notation.fm
+  match: \[[rufdlb][''2]?\]
+
+- name: comment.line.double-slash.fm
+  begin: //|#
+  beginCaptures:
+    '0': {name: punctuation.definition.comment.fm}
+  end: $\n?
+...
