@@ -1,0 +1,3 @@
+[
+	{ "keys": ["ctrl+i"], "command": "find_insertion"},
+]
