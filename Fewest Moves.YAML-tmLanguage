@@ -12,7 +12,7 @@ patterns:
 - name: notation.fm
   match: ([URFDLB]w?[''2]?|[xyz][''2]?)
 - name: notation.fm
-  match: \[[rufdlb][''2]?\]
+  match: \[[urfdlb][''2]?\]
 
 - name: comment.line.double-slash.fm
   begin: //|#
