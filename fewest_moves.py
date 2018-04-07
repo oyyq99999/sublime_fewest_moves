@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 import re
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, TimeoutExpired
 from json import loads
 from threading import Timer, Thread
 from .move_transformer import normalize
@@ -60,9 +60,10 @@ def get_skeleton(view):
     return skeleton
 
 class CallInsertionFinder(Thread):
-    def __init__(self, command, input_str, callback):
+    def __init__(self, command, input_str, timeout, callback):
         self.command = command
         self.input_str = input_str
+        self.timeout = timeout
         self.callback = callback
         Thread.__init__(self)
     def run(self):
@@ -70,11 +71,14 @@ class CallInsertionFinder(Thread):
         error = None
         try:
             p = Popen(self.command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-            result, error = p.communicate(self.input_str.encode())
+            result, error = p.communicate(self.input_str.encode(), self.timeout)
             result = result.decode()
             error = error.decode()
         except OSError as e:
             error = e.strerror
+        except TimeoutExpired as e:
+            p.kill()
+            error = 'Timeout of {} seconds has expired.'.format(e.timeout)
         except:
             error = 'Unknown error'
         self.callback(result, error)
@@ -135,10 +139,11 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
         view = self.view
+        settings = view.settings()
         scramble = get_scramble(view)
         skeleton = get_skeleton(view)
         input_str = '\n'.join([scramble, skeleton])
-        self.insertion_finder = view.settings().get('insertion_finder', self.insertion_finder)
+        self.insertion_finder = settings.get('insertion_finder', self.insertion_finder)
         try:
             p = Popen(self.check_cycles, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         except OSError as e:
@@ -167,7 +172,8 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
             command += self.edge_3cycle
         if result['parity']:
             command += self.parity_algs
-        t = CallInsertionFinder(command, input_str, self.handle_result)
+        timeout = settings.get('insertion_finder_timeout', 300)
+        t = CallInsertionFinder(command, input_str, timeout, self.handle_result)
         self.running = True
         self.show_running(0, 1)
         t.start()

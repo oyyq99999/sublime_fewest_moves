@@ -3,4 +3,6 @@
   "max_cycles": 4,
   // where to find the insertion finder
   "insertion_finder": "insertionfinder",
+  // timeout in seconds
+  "insertion_finder_timeout": 300,
 }
