@@ -1,0 +1,14 @@
+[
+  {
+    "caption": "Fewest Moves: Find Insertion",
+    "command": "find_insertion"
+  },
+  {
+    "caption": "Fewest Moves: Settings",
+    "command": "edit_settings",
+    "args": {
+      "base_file": "${packages}/Fewest Moves/Fewest Moves.sublime-settings",
+      "default": "{\n\t$0\n}\n"
+    }
+  }
+]
