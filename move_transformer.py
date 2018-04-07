@@ -3,10 +3,8 @@ import re
 AXES = 'URFDLB'
 
 def tokenize(sequence):
-    comment_pattern = re.compile(r'(?://|#).*(?=\n|$)')
     # move_pattern = re.compile(r"((?:[URFDLBxyz]|\[[urfdlb]\]|2?[URFDLB]w)['2]?|[Nn][Ii][Ss][Ss])")
     move_pattern = re.compile(r"([URFDLB]['2]?|[Nn][Ii][Ss][Ss])")
-    sequence = re.sub(comment_pattern, '', sequence)
     return move_pattern.findall(sequence)
 
 def parse_move(move):

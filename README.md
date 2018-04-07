@@ -9,7 +9,7 @@ A Sublime Text 3 plugin for FMC practises
 
 The plugin recognizes `.fm` and `.fmc` as extensions for the syntax.
 
-You can get `insertionfinder` from [here](https://github.com/xuanyan0x7c7/insertionfinder.git)`.
+You can get `insertionfinder` from [here](https://github.com/xuanyan0x7c7/insertionfinder.git).
 
 ## Syntax Definition
 

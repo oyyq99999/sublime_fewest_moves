@@ -14,6 +14,10 @@ corner_3cycle = ['-a', '3CP-normal']
 edge_3cycle = ['-a', '3EP']
 parity_algs = ['-a', '2C2E']
 
+def remove_comments(text):
+    comment_pattern = re.compile(r'(?://|#).*(?=\n|$)')
+    text = re.sub(comment_pattern, '', text)
+    return text
 
 def debounce(wait):
     """ Decorator that will postpone a functions
@@ -57,6 +61,7 @@ def get_skeleton(view):
             end = view.line(selection).end()
             break
     skeleton = view.substr(sublime.Region(start, end))
+    skeleton = remove_comments(skeleton)
     skeleton = normalize(skeleton)
     return skeleton
 
@@ -95,9 +100,7 @@ class CountMovesCommand(sublime_plugin.TextCommand):
         for line in lines:
             lineNumber += 1
             text = view.substr(line)
-            text = text[:text.index('//')] if '//' in text else text
-            text = text[:text.index('#')] if '#' in text else text
-            text = text.strip()
+            text = remove_comments(text)
             count = len(re.findall(pattern, text))
             if count > 0:
                 moves = ('{} move' if count == 1 else '{} moves').format(count)
