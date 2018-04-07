@@ -1,3 +1,3 @@
 [
-	{ "keys": ["ctrl+i"], "command": "find_insertion"},
+  { "keys": ["ctrl+i"], "command": "find_insertion"},
 ]
