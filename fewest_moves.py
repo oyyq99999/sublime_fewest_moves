@@ -145,9 +145,10 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
         result = result.decode()
         result = loads(result)
         total_cycles = result['corner_cycle_num'] + result['edge_cycle_num']
+        max_cycles = view.settings().get('max_cycles', 4)
         if result['parity']:
             total_cycles += 1
-        if total_cycles > 4:
+        if total_cycles > max_cycles:
             sublime.error_message('Too many cycles: {}'.format(total_cycles))
             return
         command = find_insertion[:]
