@@ -7,12 +7,6 @@ from threading import Timer, Thread
 from .move_transformer import normalize
 
 phantom_name = 'move_count'
-status_key = 'insertion_finder'
-check_cycles = ['insertionfinder', '-v', '--json']
-find_insertion = ['insertionfinder', '-s', '-t']
-corner_3cycle = ['-a', '3CP-normal']
-edge_3cycle = ['-a', '3EP']
-parity_algs = ['-a', '2C2E']
 
 def remove_comments(text):
     comment_pattern = re.compile(r'(?://|#).*(?=\n|$)')
@@ -125,13 +119,28 @@ class ShowSolutionCommand(sublime_plugin.TextCommand):
 
 class FindInsertionCommand(sublime_plugin.TextCommand):
     running = False
+    insertion_finder = 'insertionfinder'
+
+    @property
+    def check_cycles(self):
+        return [self.insertion_finder] + ['-v', '--json']
+
+    @property
+    def find_insertion(self):
+        return [self.insertion_finder] + ['-s', '-t']
+
+    corner_3cycle = ['-a', '3CP-normal']
+    edge_3cycle = ['-a', '3EP']
+    parity_algs = ['-a', '2C2E']
+
     def run(self, edit):
         view = self.view
         scramble = get_scramble(view)
         skeleton = get_skeleton(view)
         input_str = '\n'.join([scramble, skeleton])
+        self.insertion_finder = view.settings().get('insertion_finder', self.insertion_finder)
         try:
-            p = Popen(check_cycles, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            p = Popen(self.check_cycles, stdin=PIPE, stdout=PIPE, stderr=PIPE)
         except OSError as e:
             sublime.error_message(e.strerror)
             return
@@ -151,13 +160,13 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
         if total_cycles > max_cycles:
             sublime.error_message('Too many cycles: {}'.format(total_cycles))
             return
-        command = find_insertion[:]
+        command = self.find_insertion[:]
         if result['corner_cycle_num'] > 0:
-            command += corner_3cycle
+            command += self.corner_3cycle
         if result['edge_cycle_num'] > 0:
-            command += edge_3cycle
+            command += self.edge_3cycle
         if result['parity']:
-            command += parity_algs
+            command += self.parity_algs
         t = CallInsertionFinder(command, input_str, self.handle_result)
         self.running = True
         self.show_running(0, 1)
@@ -169,6 +178,7 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
         dir = -1 if not after else dir
         dir = 1 if not before else dir
         i += dir
+        status_key = 'insertion_finder'
         self.view.set_status(status_key, 'Finding insertions [{}={}]'.format(' ' * before, ' ' * after))
         if self.running:
             sublime.set_timeout_async(lambda: self.show_running(i, dir), 100)

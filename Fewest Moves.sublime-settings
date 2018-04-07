@@ -1,4 +1,6 @@
 {
   // maximium cycles to find
   "max_cycles": 4,
+  // where to find the insertion finder
+  "insertion_finder": "insertionfinder",
 }
