@@ -37,24 +37,9 @@ def get_scramble(view):
 
 def get_skeleton(view):
     sel = view.sel()
-    selection = view.sel()[0].begin()
-    pattern = '\n\n'
-    start = 0
-    end = 0
-    last_pos = 0
-    while True:
-        region = view.find(pattern, start)
-        if region:
-            last_pos = region.end()
-            if last_pos <= selection:
-                start = last_pos
-            if last_pos >= selection:
-                end = region.begin()
-                break
-        else:
-            end = view.line(selection).end()
-            break
-    skeleton = view.substr(sublime.Region(start, end))
+    selection = sel[0].begin()
+    expanded = view.expand_by_class(selection, sublime.CLASS_EMPTY_LINE)
+    skeleton = view.substr(expanded)
     skeleton = remove_comments(skeleton)
     skeleton = normalize(skeleton)
     return skeleton
@@ -120,6 +105,7 @@ class CountMovesCommand(sublime_plugin.TextCommand):
 class ShowSolutionCommand(sublime_plugin.TextCommand):
     def run(self, edit, text):
         self.view.insert(edit, 0, text)
+        self.view.set_read_only(True)
 
 class FindInsertionCommand(sublime_plugin.TextCommand):
     running = False
