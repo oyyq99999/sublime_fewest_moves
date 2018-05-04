@@ -29,12 +29,12 @@ contexts:
 
   # strings:
   #   - match: '\b([URFDLB]w?[''2]?|[xyz][''2]?)(?=\s|$)'
-  #     scope: notation.fm
+  #     scope: constant.other.fm
   notations:
     - match: '\b([URFDLB]w?[''2]?|[xyz][''2]?)(?=\s|$)'
-      scope: notation.fm
+      scope: constant.other.fm
     - match: '(\[[rufdlb][''2]?\])(?=\s|$)'
-      scope: notation.fm
+      scope: constant.other.fm
 
   comments:
     # Comments begin with a '//' or '#' and finish at the end of the line.
