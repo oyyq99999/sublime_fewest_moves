@@ -8,6 +8,9 @@ from .move_transformer import normalize
 
 phantom_name = 'move_count'
 
+def is_fewest_moves(view):
+    return 'source.fm' in view.scope_name(0)
+
 def remove_comments(text):
     comment_pattern = re.compile(r'(?://|#).*(?=\n|$)')
     text = re.sub(comment_pattern, '', text)
@@ -100,7 +103,7 @@ class CountMovesCommand(sublime_plugin.TextCommand):
             # view.add_phantom(phantom_name, previousLine, htmlBlock.format(moves), sublime.LAYOUT_BLOCK)
         total = 0
     def is_enabled(self):
-        return 'source.fm' in self.view.scope_name(0)
+        return is_fewest_moves(self.view)
 
 class ShowSolutionCommand(sublime_plugin.TextCommand):
     def run(self, edit, text):
@@ -186,6 +189,9 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
         resultView.set_scratch(True)
         resultView.run_command('show_solution', {"text": result})
 
+    def is_enabled(self):
+        return is_fewest_moves(self.view)
+
 class FewestMovesEventListener(sublime_plugin.EventListener):
     def on_activated_async(self, view):
         self.calc_moves(view)
@@ -194,5 +200,6 @@ class FewestMovesEventListener(sublime_plugin.EventListener):
     def on_modified_async(self, view):
         self.calc_moves(view)
     def calc_moves(self, view):
-        view.run_command('count_moves')
+        if is_fewest_moves(view):
+            view.run_command('count_moves')
 
