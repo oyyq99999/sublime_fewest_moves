@@ -72,12 +72,33 @@ class CallInsertionFinder(Thread):
         self.callback(result, error)
 
 class CountMovesCommand(sublime_plugin.TextCommand):
+
+    HTML_TEMPLATE = """
+    <body>
+        <style>
+            html, body {{
+                background-color: transparent;
+                color: {foreground};
+                font-style: {font_style};
+                margin: 0;
+                padding: 0;
+            }}
+            body {{
+                margin-left: {padding};
+            }}
+            span {{
+                color: color({foreground} blend(var(--foreground) 90%));
+                text-decoration: none;
+            }}
+        </style>
+        <span>{text}</span>
+    </body>
+    """
+
     def run(self, edit):
         view = self.view
         view.erase_phantoms(phantom_name)
         pattern = re.compile("([URFDLB]w?['2]?)")
-        htmlLineEnd = '<div style="margin-left: 10; color: #7f7c6a; font-style: italic;">({})</div>'
-        htmlBlock = '<div style="color: #7f7c6a; font-style: italic;">({})</div>'
         region = sublime.Region(0, view.size())
         lines = view.lines(region)
         lineNumber = 0
@@ -89,18 +110,18 @@ class CountMovesCommand(sublime_plugin.TextCommand):
             text = remove_comments(text)
             count = len(re.findall(pattern, text))
             if count > 0:
-                moves = ('{} move' if count == 1 else '{} moves').format(count)
-                view.add_phantom(phantom_name, sublime.Region(line.end(), line.end()), htmlLineEnd.format(moves), sublime.LAYOUT_INLINE)
+                moves = ('({} move)' if count == 1 else '({} moves)').format(count)
+                view.add_phantom(phantom_name, sublime.Region(line.end(), line.end()), self.HTML_TEMPLATE.format(foreground='#7f7c6a', font_style='italic', padding=20, text=moves), sublime.LAYOUT_INLINE)
             total += count
             if text == '':
                 if lineNumber > 2 and total > 0:
-                    moves = ('total: {} move' if total == 1 else 'total: {} moves').format(total)
-                    # view.add_phantom(phantom_name, previousLine, htmlBlock.format(moves), sublime.LAYOUT_BLOCK)
+                    moves = ('(total: {} move)' if total == 1 else '(total: {} moves)').format(total)
+                    view.add_phantom(phantom_name, previousLine, self.HTML_TEMPLATE.format(foreground='#7f7c6a', font_style='italic', padding=0, text=moves), sublime.LAYOUT_BLOCK)
                 total = 0
             previousLine = line
         if lineNumber > 2 and total > 0:
-            moves = ('total: {} move' if total == 1 else 'total: {} moves').format(total)
-            # view.add_phantom(phantom_name, previousLine, htmlBlock.format(moves), sublime.LAYOUT_BLOCK)
+            moves = ('(total: {} move)' if total == 1 else '(total: {} moves)').format(total)
+            view.add_phantom(phantom_name, previousLine, self.HTML_TEMPLATE.format(foreground='#7f7c6a', font_style='italic', padding=0, text=moves), sublime.LAYOUT_BLOCK)
         total = 0
     def is_enabled(self):
         return is_fewest_moves(self.view)
