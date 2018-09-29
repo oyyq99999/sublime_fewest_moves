@@ -6,7 +6,8 @@ from json import loads
 from threading import Timer, Thread
 from .move_transformer import normalize
 
-phantom_name = 'move_count'
+phantom_name_line_end = 'line_move_count'
+phantom_name_block = 'total_move_count'
 
 def is_fewest_moves(view):
     return 'source.fm' in view.scope_name(0)
@@ -97,7 +98,8 @@ class CountMovesCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
         view = self.view
-        view.erase_phantoms(phantom_name)
+        view.erase_phantoms(phantom_name_line_end)
+        view.erase_phantoms(phantom_name_block)
         pattern = re.compile("([URFDLB]w?['2]?)")
         region = sublime.Region(0, view.size())
         lines = view.lines(region)
@@ -111,17 +113,17 @@ class CountMovesCommand(sublime_plugin.TextCommand):
             count = len(re.findall(pattern, text))
             if count > 0:
                 moves = ('({} move)' if count == 1 else '({} moves)').format(count)
-                view.add_phantom(phantom_name, sublime.Region(line.end(), line.end()), self.HTML_TEMPLATE.format(foreground='#7f7c6a', font_style='italic', padding=20, text=moves), sublime.LAYOUT_INLINE)
+                view.add_phantom(phantom_name_line_end, sublime.Region(line.end(), line.end()), self.HTML_TEMPLATE.format(foreground='#7f7c6a', font_style='italic', padding=20, text=moves), sublime.LAYOUT_INLINE)
             total += count
             if text == '':
                 if lineNumber > 2 and total > 0:
                     moves = ('(total: {} move)' if total == 1 else '(total: {} moves)').format(total)
-                    view.add_phantom(phantom_name, previousLine, self.HTML_TEMPLATE.format(foreground='#7f7c6a', font_style='italic', padding=0, text=moves), sublime.LAYOUT_BLOCK)
+                    view.add_phantom(phantom_name_block, previousLine, self.HTML_TEMPLATE.format(foreground='#7f7c6a', font_style='italic', padding=0, text=moves), sublime.LAYOUT_BLOCK)
                 total = 0
             previousLine = line
         if lineNumber > 2 and total > 0:
             moves = ('(total: {} move)' if total == 1 else '(total: {} moves)').format(total)
-            view.add_phantom(phantom_name, previousLine, self.HTML_TEMPLATE.format(foreground='#7f7c6a', font_style='italic', padding=0, text=moves), sublime.LAYOUT_BLOCK)
+            view.add_phantom(phantom_name_block, previousLine, self.HTML_TEMPLATE.format(foreground='#7f7c6a', font_style='italic', padding=0, text=moves), sublime.LAYOUT_BLOCK)
         total = 0
     def is_enabled(self):
         return is_fewest_moves(self.view)
@@ -219,7 +221,9 @@ class FewestMovesEventListener(sublime_plugin.EventListener):
     def on_load_async(self, view):
         self.calc_moves(view)
     def on_modified_async(self, view):
+        view.erase_phantoms(phantom_name_line_end)
         self.calc_moves(view)
+    @debounce(1)
     def calc_moves(self, view):
         if is_fewest_moves(view):
             view.run_command('count_moves')
