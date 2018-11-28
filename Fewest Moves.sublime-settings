@@ -5,4 +5,12 @@
   "insertion_finder": "insertionfinder",
   // timeout in seconds
   "insertion_finder_timeout": 300,
+
+  // colorscheme
+  "u_face": "#ffffff",
+  "r_face": "#ffff00",
+  "f_face": "#00ff00",
+  "d_face": "#ffff00",
+  "l_face": "#ff8000",
+  "b_face": "#0000ff",
 }

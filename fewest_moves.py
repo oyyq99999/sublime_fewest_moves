@@ -37,6 +37,8 @@ def debounce(wait):
 def get_scramble(view):
     firstLine = view.line(sublime.Region(0, 0))
     scramble = view.substr(firstLine)
+    scramble = remove_comments(scramble)
+    scramble = normalize(scramble)
     return scramble
 
 def get_skeleton(view):
@@ -217,14 +219,15 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
 
 class FewestMovesEventListener(sublime_plugin.EventListener):
     def on_activated_async(self, view):
-        self.calc_moves(view)
+        self.run_plugin(view)
     def on_load_async(self, view):
-        self.calc_moves(view)
+        self.run_plugin(view)
     def on_modified_async(self, view):
         view.erase_phantoms(phantom_name_line_end)
-        self.calc_moves(view)
+        self.run_plugin(view)
     @debounce(1)
-    def calc_moves(self, view):
+    def run_plugin(self, view):
         if is_fewest_moves(view):
             view.run_command('count_moves')
+            view.run_command('draw_scramble')
 
