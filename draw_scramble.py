@@ -40,7 +40,7 @@ class DrawScrambleCommand(sublime_plugin.TextCommand):
                 border: 1px solid black;
             }}
             .gap {{
-                color: transparent;
+                color: var(--background);
                 border: 1px solid transparent;
             }}
             .u {{
