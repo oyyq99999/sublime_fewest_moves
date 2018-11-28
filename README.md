@@ -5,7 +5,7 @@ A Sublime Text 3 plugin for FMC practises
 
  - Set syntax to `Fewest Moves`
  - Type your solutions, the plugin will calculate move count for each line at real time
- - move your cursor to a skeleton and press <kbd>Ctrl</kbd>+<kbd>I</kbd>, the plugin will try to call `insertionfinder` command in your system to find insertions for the given scramble and skeleton. **Note for now this plugin only supports single outer layer turns (i.e. URFDLB turns) plus NISS as the input to insertion finder.**
+ - move your cursor to a skeleton and press <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>, the plugin will try to call `insertionfinder` command in your system to find insertions for the given scramble and skeleton.
 
 The plugin recognizes `.fm` and `.fmc` as extensions for the syntax.
 
@@ -15,7 +15,7 @@ You can get `insertionfinder` from [here](https://github.com/xuanyan0x7c7/insert
 
  - The first line of the file is the scramble sequence
  - The second line of the file is an empty line
- - You may have any number of skeletons, skeletons are **separated by an empty line**
+ - You may have any number of skeletons, skeletons are **separated by empty line(s)**
  - You may add comments to each line, any content from a `//` or a `#` symbol in a line to end of the line is considered as comments
  - You may have `NISS` operators in your solution, which indicates switch points of normal-scramble sequences and inverse-scramble sequences
 

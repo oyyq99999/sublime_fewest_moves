@@ -230,4 +230,3 @@ class FewestMovesEventListener(sublime_plugin.EventListener):
         if is_fewest_moves(view):
             view.run_command('count_moves')
             view.run_command('draw_scramble')
-
