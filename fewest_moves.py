@@ -145,11 +145,7 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
 
     @property
     def find_insertion(self):
-        return [self.insertion_finder] + ['-s', '-t']
-
-    corner_3cycle = ['-a', '3CP-normal']
-    edge_3cycle = ['-a', '3EP']
-    parity_algs = ['-a', '2C2E']
+        return [self.insertion_finder] + ['-s', '--all-algs']
 
     def run(self, edit):
         view = self.view
@@ -172,20 +168,16 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
             return
         result = result.decode()
         result = loads(result)
-        total_cycles = result['corner_cycle_num'] + result['edge_cycle_num']
-        max_cycles = view.settings().get('max_cycles', 4)
+        total_cycles = result['corner_cycles'] + result['edge_cycles'] + result['center_cycles']
         if result['parity']:
             total_cycles += 1
-        if total_cycles > max_cycles:
+        max_cycles = view.settings().get('max_cycles', 4)
+        if max_cycles != 0 and total_cycles > max_cycles:
             sublime.error_message('Too many cycles: {}'.format(total_cycles))
             return
         command = self.find_insertion[:]
-        if result['corner_cycle_num'] > 0:
-            command += self.corner_3cycle
-        if result['edge_cycle_num'] > 0:
-            command += self.edge_3cycle
-        if result['parity']:
-            command += self.parity_algs
+        max_threads = view.settings().get('max_threads', 2)
+        command += ['-j', str(max_threads)]
         timeout = settings.get('insertion_finder_timeout', 300)
         t = CallInsertionFinder(command, input_str, timeout, self.handle_result)
         self.running = True

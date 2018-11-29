@@ -1,6 +1,8 @@
 {
-  // maximium cycles to find
+  // maximium cycles to find, 0 means no limit
   "max_cycles": 4,
+  // maximium_threads running
+  "max_threads": 2,
   // where to find the insertion finder
   "insertion_finder": "insertionfinder",
   // timeout in seconds
