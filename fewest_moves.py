@@ -171,13 +171,16 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
         total_cycles = result['corner_cycles'] + result['edge_cycles'] + result['center_cycles']
         if result['parity']:
             total_cycles += 1
-        max_cycles = view.settings().get('max_cycles', 4)
+        max_cycles = settings.get('max_cycles', 4)
         if max_cycles != 0 and total_cycles > max_cycles:
             sublime.error_message('Too many cycles: {}'.format(total_cycles))
             return
         command = self.find_insertion[:]
-        max_threads = view.settings().get('max_threads', 2)
-        command += ['-j', str(max_threads)]
+        algs_dir = settings.get('insertion_finder_algs_dir', False)
+        if algs_dir is not False:
+            command += ['--algs-dir', algs_dir]
+        max_threads = settings.get('max_threads', 2)
+        command += ['-j' + (str(max_threads) if max_threads != 0 else '')]
         timeout = settings.get('insertion_finder_timeout', 300)
         t = CallInsertionFinder(command, input_str, timeout, self.handle_result)
         self.running = True
