@@ -1,13 +1,21 @@
 import sublime
 import sublime_plugin
 import re
-from subprocess import Popen, PIPE, TimeoutExpired
+import subprocess as sp
+from platform import system
 from json import loads
 from threading import Timer, Thread
 from .move_transformer import normalize
 
 phantom_name_line_end = 'line_move_count'
 phantom_name_block = 'total_move_count'
+
+startupinfo = None
+
+if 'windows' in system().lower():
+    startupinfo = sp.STARTUPINFO()
+    startupinfo.dwFlags |= sp.STARTF_USESHOWWINDOW
+    startupinfo.wShowWindow = sp.SW_HIDE
 
 def is_fewest_moves(view):
     return 'source.fm' in view.scope_name(0)
@@ -61,13 +69,13 @@ class CallInsertionFinder(Thread):
         result = None
         error = None
         try:
-            p = Popen(self.command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            p = sp.Popen(self.command, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, startupinfo=startupinfo)
             result, error = p.communicate(self.input_str.encode(), self.timeout)
             result = result.decode()
             error = error.decode()
         except OSError as e:
             error = e.strerror
-        except TimeoutExpired as e:
+        except sp.TimeoutExpired as e:
             p.kill()
             error = 'Timeout of {} seconds has expired.'.format(e.timeout)
         except:
@@ -155,7 +163,7 @@ class FindInsertionCommand(sublime_plugin.TextCommand):
         input_str = '\n'.join([scramble, skeleton])
         self.insertion_finder = settings.get('insertion_finder', self.insertion_finder)
         try:
-            p = Popen(self.check_cycles, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            p = sp.Popen(self.check_cycles, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, startupinfo=startupinfo)
         except OSError as e:
             sublime.error_message(e.strerror)
             return
